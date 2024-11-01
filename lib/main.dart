@@ -137,13 +137,16 @@ class _DockState<T extends IconData> extends State<Dock<T>> {
                 },
                 onDragUpdate: (details) {
                   setState(() {
-                    _targetIndex = _getTargetIndex(details.localPosition);
-                    print(_targetIndex);
-                    if(_targetIndex! <=_draggingIndex!){
-                      isMovingRight = true;
+                    // Get the target index based on the current drag position
+                    int? newTargetIndex = _getTargetIndex(details.localPosition);
+
+                    // Update target index if a valid target index is returned
+                    if (newTargetIndex != null) {
+                      _targetIndex = newTargetIndex;
+                      // Determine if the drag is moving right
+                      isMovingRight = _targetIndex! <= _draggingIndex!;
                     }
                   });
-
                 },
                 child: _targetIndex != index ?AnimatedContainer(
                   duration: const Duration(milliseconds: 600),
