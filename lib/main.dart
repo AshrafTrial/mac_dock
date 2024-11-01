@@ -59,9 +59,13 @@ class _DockState<T extends IconData> extends State<Dock<T>> {
   int? _draggingIndex;
   int? _targetIndex;
 
+  bool isMovingRight = false;
+
+
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 600),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         color: Colors.black12,
@@ -96,7 +100,6 @@ class _DockState<T extends IconData> extends State<Dock<T>> {
             builder: (context, candidateData, rejectedData) {
               return Draggable<T>(
                 data: item,
-                axis: Axis.horizontal,
                 feedback: Material(
                   color: Colors.transparent,
                   child: Container(
@@ -109,8 +112,8 @@ class _DockState<T extends IconData> extends State<Dock<T>> {
                   ),
                 ),
                 childWhenDragging: Container(
-                  width: 48,
-                  height: 48,
+                  width: 0,
+                  height: 0,
                   margin: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
@@ -135,27 +138,27 @@ class _DockState<T extends IconData> extends State<Dock<T>> {
                 onDragUpdate: (details) {
                   setState(() {
                     _targetIndex = _getTargetIndex(details.localPosition);
+                    print(_targetIndex);
+                    if(_targetIndex! <=_draggingIndex!){
+                      isMovingRight = true;
+                    }
                   });
+
                 },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  width: 56,
-                  height: 56,
+                child: _targetIndex != index ?AnimatedContainer(
+                  duration: const Duration(milliseconds: 600),
+                  width: 60,
+                  height: 60,
                   margin: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: _targetIndex == index
-                        ? Colors.blue.withOpacity(0.5)
-                        : Colors.primaries[item.hashCode % Colors.primaries.length],
-                  ),
-                  child: _targetIndex == index
-                      ? Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.blue, width: 2),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  )
-                      : widget.builder(item),
+                  child: widget.builder(item),
+                ):Row(
+                  children: [
+                    isMovingRight ? Container(width: 60,
+                      height: 60,):SizedBox(),
+                    widget.builder(item),
+                    !isMovingRight?Container(width: 60,
+                      height: 60,):SizedBox()
+                  ],
                 ),
               );
             },
